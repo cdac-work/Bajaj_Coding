@@ -49,8 +49,8 @@ public class Main {
 
     
     public static String generateHash(String prn, String destination) {
-        String salt = generateSalt();
-        String concatenatedString = prn + destination + salt;
+        String randomString = generateRandomString(8);
+        String concatenatedString = prn + destination + randomString;
         
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -59,26 +59,24 @@ public class Main {
             
             StringBuilder sb = new StringBuilder();
             for (byte b : digest) {
-                sb.append(String.format("%02x", b & 0xff));
+                sb.append(String.format("%02x", b));
             }
             
-            return sb.toString() + ";" + salt;
+            return sb.toString() + ";" + randomString;
         } catch (Exception e) {
             throw new IllegalStateException("MD5 algorithm not available", e);
         }
     }
     
-    private static String generateSalt() {
-        Random random = new Random();
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 8;
-        
-        return random.ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(targetStringLength)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
+    private static String generateRandomString(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder randomString = new StringBuilder();
+        Random rnd = new Random();
+        while (randomString.length() < length) {
+            int index = (int) (rnd.nextFloat() * chars.length());
+            randomString.append(chars.charAt(index));
+        }
+        return randomString.toString();
     }
     
 
